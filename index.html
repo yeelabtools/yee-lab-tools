@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>YEE LAB Tools — Dilution Calculator</title>
+<style>
+:root{--bg:#f4f8fa;--card:#fff;--ink:#102a43;--muted:#627d98;--accent:#348894;--line:#d6e0ea}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+.wrap{max-width:760px;margin:auto;padding:28px 18px 48px}.brand{font-weight:850;letter-spacing:.12em;color:var(--accent)}
+h1{font-size:clamp(34px,7vw,52px);margin:10px 0 14px}.sub{color:var(--muted);font-size:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:24px;padding:22px;margin-top:22px}
+.row{display:grid;grid-template-columns:1fr 120px;gap:14px;margin:18px 0}label{display:block;font-weight:800;font-size:17px;margin-bottom:7px}
+small{display:block;color:var(--muted);font-weight:400;margin-top:2px}input,select,button{width:100%;font:inherit;border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;color:var(--ink)}
+button{font-weight:850;cursor:pointer}.primary{background:var(--accent);color:#fff;border-color:var(--accent);margin-top:8px}.reset{margin-top:10px}
+.answer{margin-top:18px;border:2px solid #a9d6dc;border-radius:18px;padding:18px;background:#eefafa}
+.answer h2{margin:0 0 12px;font-size:20px;color:var(--accent)}.big{font-size:26px;font-weight:900}.line{margin:10px 0}
+.placeholder{color:var(--muted);font-weight:650}.error{background:#fff1ef;border-color:#efb2aa;color:#8d2b20}
+.formula,footer{color:var(--muted);font-size:14px;line-height:1.5}.formula{margin-top:18px}footer{margin-top:20px}
+@media(max-width:520px){.row{grid-template-columns:1fr 105px}}
+</style></head><body><main class="wrap">
+<div class="brand">YEE LAB TOOLS</div><h1>Dilution Calculator</h1><p class="sub">Calculate a simple dilution using C₁V₁ = C₂V₂.</p>
+<section class="card">
+<div class="row"><div><label>Stock concentration (C₁)<small>Concentration you already have</small></label><input id="c1" type="number" min="0" step="any" placeholder="e.g. 100"></div><div><label>Unit</label><select id="u1"><option>M</option><option selected>mM</option><option>µM</option><option>nM</option><option>mg/mL</option><option>mg/L</option><option>µg/mL</option></select></div></div>
+<div class="row"><div><label>Desired concentration (C₂)<small>Final concentration you want</small></label><input id="c2" type="number" min="0" step="any" placeholder="e.g. 10"></div><div><label>Unit</label><select id="u2"><option>M</option><option selected>mM</option><option>µM</option><option>nM</option><option>mg/mL</option><option>mg/L</option><option>µg/mL</option></select></div></div>
+<div class="row"><div><label>Final volume (V₂)<small>Total volume after dilution</small></label><input id="v2" type="number" min="0" step="any" placeholder="e.g. 100"></div><div><label>Unit</label><select id="vu"><option selected>µL</option><option>mL</option><option>L</option></select></div></div>
+<button id="calc" class="primary">Calculate</button><button id="reset" class="reset">Reset</button>
+<div id="answer" class="answer"><h2>RESULT</h2><div class="placeholder">Your answer will appear here after you tap Calculate.</div></div>
+<div class="formula">Formula: V₁ = (C₂ × V₂) ÷ C₁</div>
+</section>
+<footer>For laboratory calculation assistance only. Verify calculations, units, protocols, and experimental requirements before use.</footer>
+</main>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const factor={"M":["mol",1],"mM":["mol",1e-3],"µM":["mol",1e-6],"nM":["mol",1e-9],"mg/mL":["mass",1],"mg/L":["mass",1e-3],"µg/mL":["mass",1e-3]};
+const vf={"µL":1e-6,"mL":1e-3,"L":1};
+function fmt(x){if(Math.abs(x)>=10000||(Math.abs(x)>0&&Math.abs(x)<0.001))return x.toExponential(4);return String(Number(x.toPrecision(7)))}
+function showError(msg){$("answer").className="answer error";$("answer").innerHTML="<h2>CHECK INPUT</h2><div>"+msg+"</div>"}
+$("calc").addEventListener("click",function(){
+let C1=parseFloat($("c1").value),C2=parseFloat($("c2").value),V2=parseFloat($("v2").value),a=factor[$("u1").value],b=factor[$("u2").value],vu=$("vu").value;
+if(!(C1>0&&C2>0&&V2>0)){showError("Please enter positive values in all three fields.");return}
+if(a[0]!==b[0]){showError("Choose compatible concentration units (molar with molar, or mass/volume with mass/volume).");return}
+let c1base=C1*a[1],c2base=C2*b[1];
+if(c2base>c1base){showError("Desired concentration is higher than the stock, so this cannot be made by simple dilution.");return}
+let V2base=V2*vf[vu],V1base=(c2base*V2base)/c1base,dilbase=V2base-V1base;
+let V1=V1base/vf[vu],dil=dilbase/vf[vu];
+$("answer").className="answer";
+$("answer").innerHTML='<h2>RESULT</h2><div class="line">Use stock (V₁): <span class="big">'+fmt(V1)+' '+vu+'</span></div><div class="line">Add diluent: <span class="big">'+fmt(dil)+' '+vu+'</span></div><div class="line">Final volume: <b>'+fmt(V2)+' '+vu+'</b></div>';
+});
+$("reset").addEventListener("click",function(){["c1","c2","v2"].forEach(id=>$(id).value="");$("answer").className="answer";$("answer").innerHTML='<h2>RESULT</h2><div class="placeholder">Your answer will appear here after you tap Calculate.</div>'});
+})();
+</script></body></html>
