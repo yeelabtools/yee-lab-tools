@@ -1,50 +1,122 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>YEE LAB Tools — Dilution Calculator</title>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>YEE LAB Tools</title>
 <style>
-:root{--bg:#f4f8fa;--card:#fff;--ink:#102a43;--muted:#627d98;--accent:#348894;--line:#d6e0ea}
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
-.wrap{max-width:760px;margin:auto;padding:28px 18px 48px}.brand{font-weight:850;letter-spacing:.12em;color:var(--accent)}
-h1{font-size:clamp(34px,7vw,52px);margin:10px 0 14px}.sub{color:var(--muted);font-size:18px}
-.card{background:#fff;border:1px solid var(--line);border-radius:24px;padding:22px;margin-top:22px}
-.row{display:grid;grid-template-columns:1fr 120px;gap:14px;margin:18px 0}label{display:block;font-weight:800;font-size:17px;margin-bottom:7px}
-small{display:block;color:var(--muted);font-weight:400;margin-top:2px}input,select,button{width:100%;font:inherit;border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;color:var(--ink)}
-button{font-weight:850;cursor:pointer}.primary{background:var(--accent);color:#fff;border-color:var(--accent);margin-top:8px}.reset{margin-top:10px}
-.answer{margin-top:18px;border:2px solid #a9d6dc;border-radius:18px;padding:18px;background:#eefafa}
-.answer h2{margin:0 0 12px;font-size:20px;color:var(--accent)}.big{font-size:26px;font-weight:900}.line{margin:10px 0}
-.placeholder{color:var(--muted);font-weight:650}.error{background:#fff1ef;border-color:#efb2aa;color:#8d2b20}
-.formula,footer{color:var(--muted);font-size:14px;line-height:1.5}.formula{margin-top:18px}footer{margin-top:20px}
-@media(max-width:520px){.row{grid-template-columns:1fr 105px}}
-</style></head><body><main class="wrap">
-<div class="brand">YEE LAB TOOLS</div><h1>Dilution Calculator</h1><p class="sub">Calculate a simple dilution using C₁V₁ = C₂V₂.</p>
-<section class="card">
-<div class="row"><div><label>Stock concentration (C₁)<small>Concentration you already have</small></label><input id="c1" type="number" min="0" step="any" placeholder="e.g. 100"></div><div><label>Unit</label><select id="u1"><option>M</option><option selected>mM</option><option>µM</option><option>nM</option><option>mg/mL</option><option>mg/L</option><option>µg/mL</option></select></div></div>
-<div class="row"><div><label>Desired concentration (C₂)<small>Final concentration you want</small></label><input id="c2" type="number" min="0" step="any" placeholder="e.g. 10"></div><div><label>Unit</label><select id="u2"><option>M</option><option selected>mM</option><option>µM</option><option>nM</option><option>mg/mL</option><option>mg/L</option><option>µg/mL</option></select></div></div>
-<div class="row"><div><label>Final volume (V₂)<small>Total volume after dilution</small></label><input id="v2" type="number" min="0" step="any" placeholder="e.g. 100"></div><div><label>Unit</label><select id="vu"><option selected>µL</option><option>mL</option><option>L</option></select></div></div>
-<button id="calc" class="primary">Calculate</button><button id="reset" class="reset">Reset</button>
-<div id="answer" class="answer"><h2>RESULT</h2><div class="placeholder">Your answer will appear here after you tap Calculate.</div></div>
-<div class="formula">Formula: V₁ = (C₂ × V₂) ÷ C₁</div>
-</section>
-<footer>For laboratory calculation assistance only. Verify calculations, units, protocols, and experimental requirements before use.</footer>
+:root{--bg:#f5f8fa;--card:#fff;--ink:#102a43;--muted:#627d98;--accent:#2f7f8d;--accent-soft:#eaf7f8;--line:#d9e2ec;--danger:#9b2c2c;--danger-bg:#fff2f0}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:linear-gradient(180deg,#f7fbfc 0%,#f3f7fa 100%);color:var(--ink)}
+button,input,select{font:inherit}.wrap{max-width:980px;margin:auto;padding:20px 16px 56px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.brand-btn{border:0;background:transparent;padding:0;color:var(--accent);font-weight:900;letter-spacing:.12em;font-size:15px;cursor:pointer}.version{font-size:12px;color:var(--accent);background:var(--accent-soft);border:1px solid #cfeaed;padding:7px 10px;border-radius:999px;font-weight:800}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}.nav button{border:1px solid var(--line);background:#fff;color:var(--ink);padding:9px 12px;border-radius:999px;font-weight:800;cursor:pointer}.nav button.active{background:var(--accent-soft);border-color:#b7dde2;color:var(--accent)}
+.view{display:none}.view.active{display:block}.hero,.panel{background:var(--card);border:1px solid var(--line);border-radius:26px;box-shadow:0 14px 40px rgba(16,42,67,.06)}.hero{padding:30px;margin-bottom:22px}.hero h1{font-size:clamp(36px,8vw,62px);line-height:1;margin:0 0 12px}.hero p{color:var(--muted);font-size:18px;max-width:680px;margin:0}
+.section-title{font-size:22px;margin:28px 0 14px}.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.card{border:1px solid var(--line);background:#fff;border-radius:22px;padding:20px;box-shadow:0 10px 30px rgba(16,42,67,.04)}.card h3{margin:4px 0 8px;font-size:21px}.card p{margin:0;color:var(--muted);line-height:1.5}.icon{font-size:30px}.status{display:inline-block;margin-top:14px;font-size:12px;font-weight:900;color:var(--accent)}.card button{width:100%;margin-top:16px;border:0;background:var(--accent);color:#fff;padding:12px 14px;border-radius:14px;font-weight:900;cursor:pointer}
+.panel{padding:22px}.tool-head{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:8px}.tool-head h2{font-size:30px;margin:0}.sub{color:var(--muted);margin:6px 0 0}.chip{white-space:nowrap;font-size:13px;color:var(--accent);background:var(--accent-soft);padding:8px 11px;border-radius:999px;font-weight:800}
+.row{display:grid;grid-template-columns:1fr 125px;gap:12px;margin:18px 0}label{display:block;font-weight:800;margin-bottom:7px}.hint{display:block;color:var(--muted);font-size:13px;font-weight:400;margin-top:2px}input,select{width:100%;border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;color:var(--ink)}
+.actions{display:grid;grid-template-columns:1fr 130px;gap:10px;margin-top:18px}.actions button,.tabs button{border:1px solid var(--line);border-radius:14px;padding:13px;background:#fff;font-weight:900;cursor:pointer}.actions .primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.answer{margin-top:18px;border:2px solid #b8dde1;border-radius:18px;padding:18px;background:#eef9fa}.answer h3{margin:0 0 12px;color:var(--accent)}.big{font-size:26px;font-weight:900}.line{margin:10px 0}.placeholder{color:var(--muted);font-weight:650}.error{background:var(--danger-bg);border-color:#efb2aa;color:var(--danger)}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:18px 0}.tabs button.active{background:var(--accent-soft);border-color:#b7dde2;color:var(--accent)}.subpanel{display:none}.subpanel.active{display:block}.note{margin-top:22px;padding:16px 18px;border-radius:16px;background:#fbfcfd;border:1px solid var(--line);color:var(--muted);font-size:13px;line-height:1.55}.back{margin-bottom:14px;border:0;background:transparent;color:var(--accent);font-weight:900;padding:0;cursor:pointer}
+.table-wrap{overflow-x:auto;margin-top:18px}table{width:100%;border-collapse:collapse;background:#fff}th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:right}th:first-child,td:first-child{text-align:left}th{font-size:13px;color:var(--muted)}footer{text-align:center;color:var(--muted);font-size:12px;margin-top:24px}
+@media(max-width:760px){.cards{grid-template-columns:1fr}.hero{padding:22px}}@media(max-width:520px){.row{grid-template-columns:1fr 105px}.actions{grid-template-columns:1fr}.tool-head{align-items:start;flex-direction:column}.tabs{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<div class="topbar"><button class="brand-btn" data-route="home">YEE LAB TOOLS</button><div class="version">V1.5</div></div>
+<nav class="nav"><button data-route="home">Home</button><button data-route="dilution">Dilution</button><button data-route="primer">Primer</button><button data-route="rcf">RCF ↔ RPM</button><button data-route="serial">Serial Dilution</button></nav>
+
+<section id="home" class="view">
+<div class="hero"><h1>Simple tools for everyday lab work.</h1><p>Choose only the tool you need. Routine calculations stay simple, while specialized calculators remain separate and easy to find.</p></div>
+<h2 class="section-title">Available tools</h2>
+<div class="cards">
+<article class="card"><div class="icon">🧪</div><h3>Dilution Calculator</h3><p>The everyday calculator for stock volume and diluent using C₁V₁ = C₂V₂.</p><span class="status">AVAILABLE NOW</span><button data-route="dilution">Open Dilution Calculator</button></article>
+<article class="card"><div class="icon">🧬</div><h3>Primer Dilution</h3><p>Resuspend dry primers or prepare a working primer concentration.</p><span class="status">AVAILABLE NOW</span><button data-route="primer">Open Primer Tool</button></article>
+<article class="card"><div class="icon">🔄</div><h3>RCF ↔ RPM</h3><p>Convert relative centrifugal force and RPM using rotor radius.</p><span class="status">AVAILABLE NOW</span><button data-route="rcf">Open RCF ↔ RPM</button></article>
+<article class="card"><div class="icon">📉</div><h3>Serial Dilution</h3><p>Plan repeated dilution steps and see the concentration at each tube.</p><span class="status">AVAILABLE NOW</span><button data-route="serial">Open Serial Dilution</button></article>
+</div></section>
+
+<section id="dilution" class="view"><button class="back" data-route="home">← Back to Home</button><div class="panel">
+<div class="tool-head"><div><h2>Dilution Calculator</h2><p class="sub">Simple and quick for routine use.</p></div><div class="chip">C₁V₁ = C₂V₂</div></div>
+<div class="row"><div><label>Stock concentration (C₁)<span class="hint">Concentration you already have</span></label><input id="c1" type="number" placeholder="e.g. 100"></div><div><label>Unit</label><select id="u1"><option>M</option><option selected>mM</option><option>µM</option><option>nM</option><option>mg/mL</option><option>mg/L</option><option>µg/mL</option></select></div></div>
+<div class="row"><div><label>Desired concentration (C₂)<span class="hint">Final concentration you want</span></label><input id="c2" type="number" placeholder="e.g. 10"></div><div><label>Unit</label><select id="u2"><option>M</option><option selected>mM</option><option>µM</option><option>nM</option><option>mg/mL</option><option>mg/L</option><option>µg/mL</option></select></div></div>
+<div class="row"><div><label>Final volume (V₂)<span class="hint">Total volume after dilution</span></label><input id="v2" type="number" placeholder="e.g. 100"></div><div><label>Unit</label><select id="vu"><option selected>µL</option><option>mL</option><option>L</option></select></div></div>
+<div class="actions"><button id="calcBtn" class="primary">Calculate</button><button id="resetBtn">Reset</button></div>
+<div id="answer" class="answer"><h3>RESULT</h3><div class="placeholder">Your answer will appear here after you tap Calculate.</div></div>
+<div class="note">For laboratory calculation assistance only. Verify calculations, units, protocols, concentrations, and experimental requirements before use.</div>
+</div></section>
+
+<section id="primer" class="view"><button class="back" data-route="home">← Back to Home</button><div class="panel">
+<div class="tool-head"><div><h2>Primer Dilution</h2><p class="sub">A specialized tool for primer preparation.</p></div><div class="chip">Primer tools</div></div>
+<div class="tabs"><button class="active" data-panel="resuspendPanel">Dry primer → Stock</button><button data-panel="workingPanel">Stock → Working primer</button></div>
+<div id="resuspendPanel" class="subpanel active">
+<div class="row"><div><label>Primer amount<span class="hint">Amount shown on the primer tube or datasheet</span></label><input id="nmol" type="number" placeholder="e.g. 25"></div><div><label>Unit</label><select disabled><option>nmol</option></select></div></div>
+<div class="row"><div><label>Desired stock concentration<span class="hint">Example: 100 µM</span></label><input id="stockTarget" type="number" placeholder="e.g. 100"></div><div><label>Unit</label><select disabled><option>µM</option></select></div></div>
+<div class="actions"><button id="resuspendBtn" class="primary">Calculate</button><button id="resuspendReset">Reset</button></div>
+<div id="resuspendAnswer" class="answer"><h3>RESULT</h3><div class="placeholder">Enter primer amount and desired stock concentration.</div></div>
+</div>
+<div id="workingPanel" class="subpanel">
+<div class="row"><div><label>Stock primer concentration (C₁)</label><input id="pC1" type="number" placeholder="e.g. 100"></div><div><label>Unit</label><select id="pU1"><option selected>µM</option><option>nM</option></select></div></div>
+<div class="row"><div><label>Desired working concentration (C₂)</label><input id="pC2" type="number" placeholder="e.g. 10"></div><div><label>Unit</label><select id="pU2"><option selected>µM</option><option>nM</option></select></div></div>
+<div class="row"><div><label>Final working volume (V₂)</label><input id="pV2" type="number" placeholder="e.g. 100"></div><div><label>Unit</label><select id="pVU"><option selected>µL</option><option>mL</option></select></div></div>
+<div class="actions"><button id="workingBtn" class="primary">Calculate</button><button id="workingReset">Reset</button></div>
+<div id="workingAnswer" class="answer"><h3>RESULT</h3><div class="placeholder">Enter stock concentration, desired concentration, and final volume.</div></div>
+</div>
+<div class="note">Dry-primer calculation assumes the amount supplied is in nmol. Verify the supplier datasheet and your laboratory protocol before use.</div>
+</div></section>
+
+<section id="rcf" class="view"><button class="back" data-route="home">← Back to Home</button><div class="panel">
+<div class="tool-head"><div><h2>RCF ↔ RPM</h2><p class="sub">Convert relative centrifugal force and revolutions per minute.</p></div><div class="chip">RCF = 1.118×10⁻⁵ × r × RPM²</div></div>
+<div class="tabs"><button class="active" data-panel="rpmPanel">RPM → RCF</button><button data-panel="rcfPanel">RCF → RPM</button></div>
+<div id="rpmPanel" class="subpanel active">
+<div class="row"><div><label>RPM</label><input id="rpmVal" type="number" placeholder="e.g. 9000"></div><div><label>Unit</label><select disabled><option>rpm</option></select></div></div>
+<div class="row"><div><label>Rotor radius<span class="hint">Center of rotor to sample, in cm</span></label><input id="radius1" type="number" placeholder="e.g. 10"></div><div><label>Unit</label><select disabled><option>cm</option></select></div></div>
+<div class="actions"><button id="rpmToRcfBtn" class="primary">Calculate</button><button id="rpmToRcfReset">Reset</button></div>
+<div id="rpmToRcfAnswer" class="answer"><h3>RESULT</h3><div class="placeholder">Enter RPM and rotor radius.</div></div>
+</div>
+<div id="rcfPanel" class="subpanel">
+<div class="row"><div><label>RCF</label><input id="rcfVal" type="number" placeholder="e.g. 9000"></div><div><label>Unit</label><select disabled><option>×g</option></select></div></div>
+<div class="row"><div><label>Rotor radius<span class="hint">Center of rotor to sample, in cm</span></label><input id="radius2" type="number" placeholder="e.g. 10"></div><div><label>Unit</label><select disabled><option>cm</option></select></div></div>
+<div class="actions"><button id="rcfToRpmBtn" class="primary">Calculate</button><button id="rcfToRpmReset">Reset</button></div>
+<div id="rcfToRpmAnswer" class="answer"><h3>RESULT</h3><div class="placeholder">Enter RCF and rotor radius.</div></div>
+</div>
+<div class="note">Rotor radius must be in centimeters. Use the correct radius for your rotor/sample position.</div>
+</div></section>
+
+<section id="serial" class="view"><button class="back" data-route="home">← Back to Home</button><div class="panel">
+<div class="tool-head"><div><h2>Serial Dilution</h2><p class="sub">Plan repeated equal-factor dilution steps.</p></div><div class="chip">Cₙ = C₀ ÷ DFⁿ</div></div>
+<div class="row"><div><label>Starting concentration</label><input id="serialStart" type="number" placeholder="e.g. 100"></div><div><label>Unit</label><select id="serialUnit"><option>M</option><option selected>mM</option><option>µM</option><option>nM</option><option>mg/mL</option><option>mg/L</option><option>µg/mL</option></select></div></div>
+<div class="row"><div><label>Dilution factor per step<span class="hint">2 = 1:2, 10 = 1:10</span></label><input id="serialFactor" type="number" placeholder="e.g. 2"></div><div><label>DF</label><select disabled><option>×</option></select></div></div>
+<div class="row"><div><label>Number of dilution steps</label><input id="serialSteps" type="number" min="1" max="20" step="1" placeholder="e.g. 6"></div><div><label>Steps</label><select disabled><option>tubes</option></select></div></div>
+<div class="row"><div><label>Transfer volume per step</label><input id="transferVol" type="number" placeholder="e.g. 100"></div><div><label>Unit</label><select id="serialVolUnit"><option selected>µL</option><option>mL</option></select></div></div>
+<div class="actions"><button id="serialBtn" class="primary">Calculate</button><button id="serialReset">Reset</button></div>
+<div id="serialAnswer" class="answer"><h3>RESULT</h3><div class="placeholder">Enter starting concentration, dilution factor, steps, and transfer volume.</div></div>
+<div class="note">For equal-factor serial dilution: diluent per receiving tube = transfer volume × (dilution factor − 1). Mix each tube thoroughly before transferring to the next.</div>
+</div></section>
+
+<footer>YEE LAB Tools · Built for simple laboratory calculations</footer>
 </main>
 <script>
 (function(){
 const $=id=>document.getElementById(id);
-const factor={"M":["mol",1],"mM":["mol",1e-3],"µM":["mol",1e-6],"nM":["mol",1e-9],"mg/mL":["mass",1],"mg/L":["mass",1e-3],"µg/mL":["mass",1e-3]};
-const vf={"µL":1e-6,"mL":1e-3,"L":1};
-function fmt(x){if(Math.abs(x)>=10000||(Math.abs(x)>0&&Math.abs(x)<0.001))return x.toExponential(4);return String(Number(x.toPrecision(7)))}
-function showError(msg){$("answer").className="answer error";$("answer").innerHTML="<h2>CHECK INPUT</h2><div>"+msg+"</div>"}
-$("calc").addEventListener("click",function(){
-let C1=parseFloat($("c1").value),C2=parseFloat($("c2").value),V2=parseFloat($("v2").value),a=factor[$("u1").value],b=factor[$("u2").value],vu=$("vu").value;
-if(!(C1>0&&C2>0&&V2>0)){showError("Please enter positive values in all three fields.");return}
-if(a[0]!==b[0]){showError("Choose compatible concentration units (molar with molar, or mass/volume with mass/volume).");return}
-let c1base=C1*a[1],c2base=C2*b[1];
-if(c2base>c1base){showError("Desired concentration is higher than the stock, so this cannot be made by simple dilution.");return}
-let V2base=V2*vf[vu],V1base=(c2base*V2base)/c1base,dilbase=V2base-V1base;
-let V1=V1base/vf[vu],dil=dilbase/vf[vu];
-$("answer").className="answer";
-$("answer").innerHTML='<h2>RESULT</h2><div class="line">Use stock (V₁): <span class="big">'+fmt(V1)+' '+vu+'</span></div><div class="line">Add diluent: <span class="big">'+fmt(dil)+' '+vu+'</span></div><div class="line">Final volume: <b>'+fmt(V2)+' '+vu+'</b></div>';
-});
-$("reset").addEventListener("click",function(){["c1","c2","v2"].forEach(id=>$(id).value="");$("answer").className="answer";$("answer").innerHTML='<h2>RESULT</h2><div class="placeholder">Your answer will appear here after you tap Calculate.</div>'});
+function setRoute(route){const valid=["home","dilution","primer","rcf","serial"];if(!valid.includes(route))route="home";document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));document.querySelectorAll("[data-route]").forEach(b=>b.classList.remove("active"));$(route).classList.add("active");document.querySelectorAll('[data-route="'+route+'"]').forEach(b=>b.classList.add("active"));if(location.hash!=="#"+route)history.replaceState(null,"","#"+route);window.scrollTo({top:0,behavior:"smooth"})}
+document.querySelectorAll("[data-route]").forEach(el=>el.addEventListener("click",()=>setRoute(el.dataset.route)));setRoute((location.hash||"#home").slice(1));window.addEventListener("hashchange",()=>setRoute((location.hash||"#home").slice(1)));
+document.querySelectorAll("[data-panel]").forEach(btn=>btn.addEventListener("click",()=>{const parent=btn.closest(".panel");parent.querySelectorAll("[data-panel]").forEach(x=>x.classList.remove("active"));parent.querySelectorAll(".subpanel").forEach(x=>x.classList.remove("active"));btn.classList.add("active");$(btn.dataset.panel).classList.add("active")}));
+const factor={"M":["mol",1],"mM":["mol",1e-3],"µM":["mol",1e-6],"nM":["mol",1e-9],"mg/mL":["mass",1],"mg/L":["mass",1e-3],"µg/mL":["mass",1e-3]},vf={"µL":1e-6,"mL":1e-3,"L":1},pf={"µM":1,"nM":.001},pvf={"µL":1,"mL":1000};
+function fmt(x){if(!isFinite(x))return"—";if(x===0)return"0";if(Math.abs(x)>=10000||Math.abs(x)<.001)return x.toExponential(4);return String(Number(x.toPrecision(7)))}
+function err(el,msg){el.className="answer error";el.innerHTML="<h3>CHECK INPUT</h3><div>"+msg+"</div>"}function reset(el,msg){el.className="answer";el.innerHTML='<h3>RESULT</h3><div class="placeholder">'+msg+'</div>'}
+$("calcBtn").onclick=()=>{const C1=+c1.value,C2=+c2.value,V2=+v2.value,a=factor[u1.value],b=factor[u2.value],unit=vu.value,out=answer;if(!(C1>0&&C2>0&&V2>0))return err(out,"Please enter positive values.");if(a[0]!==b[0])return err(out,"Choose compatible concentration units.");const x=C1*a[1],y=C2*b[1];if(y>x)return err(out,"Desired concentration is higher than stock.");const total=V2*vf[unit],stock=y*total/x,dil=total-stock;out.className="answer";out.innerHTML='<h3>RESULT</h3><div class="line">Use stock: <span class="big">'+fmt(stock/vf[unit])+' '+unit+'</span></div><div class="line">Add diluent: <span class="big">'+fmt(dil/vf[unit])+' '+unit+'</span></div>'};
+$("resetBtn").onclick=()=>{c1.value=c2.value=v2.value="";reset(answer,"Your answer will appear here after you tap Calculate.")};
+$("resuspendBtn").onclick=()=>{const n=+nmol.value,c=+stockTarget.value;if(!(n>0&&c>0))return err(resuspendAnswer,"Please enter positive values.");const v=1000*n/c;resuspendAnswer.className="answer";resuspendAnswer.innerHTML='<h3>RESULT</h3><div class="line">Add water/buffer: <span class="big">'+fmt(v)+' µL</span></div><div class="line">Stock concentration: <b>'+fmt(c)+' µM</b></div>'};
+$("resuspendReset").onclick=()=>{nmol.value=stockTarget.value="";reset(resuspendAnswer,"Enter primer amount and desired stock concentration.")};
+$("workingBtn").onclick=()=>{const C1=+pC1.value,C2=+pC2.value,V2=+pV2.value;if(!(C1>0&&C2>0&&V2>0))return err(workingAnswer,"Please enter positive values.");const a=C1*pf[pU1.value],b=C2*pf[pU2.value];if(b>a)return err(workingAnswer,"Desired concentration is higher than stock.");const total=V2*pvf[pVU.value],stock=b*total/a,dil=total-stock,div=pvf[pVU.value];workingAnswer.className="answer";workingAnswer.innerHTML='<h3>RESULT</h3><div class="line">Use primer stock: <span class="big">'+fmt(stock/div)+' '+pVU.value+'</span></div><div class="line">Add water/buffer: <span class="big">'+fmt(dil/div)+' '+pVU.value+'</span></div>'};
+$("workingReset").onclick=()=>{pC1.value=pC2.value=pV2.value="";reset(workingAnswer,"Enter stock concentration, desired concentration, and final volume.")};
+$("rpmToRcfBtn").onclick=()=>{const rpm=+rpmVal.value,r=+radius1.value;if(!(rpm>0&&r>0))return err(rpmToRcfAnswer,"Please enter positive RPM and radius.");const x=1.118e-5*r*rpm*rpm;rpmToRcfAnswer.className="answer";rpmToRcfAnswer.innerHTML='<h3>RESULT</h3><div class="line">RCF: <span class="big">'+fmt(x)+' ×g</span></div>'};
+$("rpmToRcfReset").onclick=()=>{rpmVal.value=radius1.value="";reset(rpmToRcfAnswer,"Enter RPM and rotor radius.")};
+$("rcfToRpmBtn").onclick=()=>{const x=+rcfVal.value,r=+radius2.value;if(!(x>0&&r>0))return err(rcfToRpmAnswer,"Please enter positive RCF and radius.");const rpm=Math.sqrt(x/(1.118e-5*r));rcfToRpmAnswer.className="answer";rcfToRpmAnswer.innerHTML='<h3>RESULT</h3><div class="line">RPM: <span class="big">'+fmt(rpm)+' rpm</span></div>'};
+$("rcfToRpmReset").onclick=()=>{rcfVal.value=radius2.value="";reset(rcfToRpmAnswer,"Enter RCF and rotor radius.")};
+$("serialBtn").onclick=()=>{const start=+serialStart.value,df=+serialFactor.value,steps=parseInt(serialSteps.value),t=+transferVol.value,unit=serialUnit.value,vu=serialVolUnit.value;if(!(start>0&&df>1&&steps>=1&&steps<=20&&t>0))return err(serialAnswer,"Use positive values, dilution factor > 1, and 1–20 steps.");const dil=t*(df-1);let rows="";for(let i=1;i<=steps;i++){rows+='<tr><td>Tube '+i+'</td><td>'+fmt(start/Math.pow(df,i))+' '+unit+'</td><td>'+fmt(t)+' '+vu+'</td><td>'+fmt(dil)+' '+vu+'</td></tr>'}serialAnswer.className="answer";serialAnswer.innerHTML='<h3>RESULT</h3><div class="line">Diluent per receiving tube: <span class="big">'+fmt(dil)+' '+vu+'</span></div><div class="table-wrap"><table><thead><tr><th>Step</th><th>Concentration</th><th>Transfer</th><th>Diluent</th></tr></thead><tbody>'+rows+'</tbody></table></div>'};
+$("serialReset").onclick=()=>{serialStart.value=serialFactor.value=serialSteps.value=transferVol.value="";reset(serialAnswer,"Enter starting concentration, dilution factor, steps, and transfer volume.")};
 })();
-</script></body></html>
+</script>
+</body></html>
