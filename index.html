@@ -23,7 +23,7 @@ button,input,select{font:inherit}.wrap{max-width:980px;margin:auto;padding:20px 
 </head>
 <body>
 <main class="wrap">
-<div class="topbar"><button class="brand-btn" data-route="home">YEE LAB TOOLS</button><div class="version">V1.5</div></div>
+<div class="topbar"><button class="brand-btn" data-route="home">YEE LAB TOOLS</button><div class="version">V1.6</div></div>
 <nav class="nav"><button data-route="home">Home</button><button data-route="dilution">Dilution</button><button data-route="primer">Primer</button><button data-route="rcf">RCF ↔ RPM</button><button data-route="serial">Serial Dilution</button></nav>
 
 <section id="home" class="view">
@@ -50,19 +50,19 @@ button,input,select{font:inherit}.wrap{max-width:980px;margin:auto;padding:20px 
 <div class="tool-head"><div><h2>Primer Dilution</h2><p class="sub">A specialized tool for primer preparation.</p></div><div class="chip">Primer tools</div></div>
 <div class="tabs"><button class="active" data-panel="resuspendPanel">Dry primer → Stock</button><button data-panel="workingPanel">Stock → Working primer</button></div>
 <div id="resuspendPanel" class="subpanel active">
-<div class="row"><div><label>Primer amount<span class="hint">Amount shown on the primer tube or datasheet</span></label><input id="nmol" type="number" placeholder="e.g. 25"></div><div><label>Unit</label><select disabled><option>nmol</option></select></div></div>
-<div class="row"><div><label>Desired stock concentration<span class="hint">Example: 100 µM</span></label><input id="stockTarget" type="number" placeholder="e.g. 100"></div><div><label>Unit</label><select disabled><option>µM</option></select></div></div>
+<div class="row"><div><label>Primer amount<span class="hint">Amount shown on the primer tube or datasheet</span></label><input id="nmol" type="number" placeholder="e.g. 25"></div><div><label>Unit</label><select id="primerAmountUnit"><option selected>nmol</option><option>pmol</option></select></div></div>
+<div class="row"><div><label>Desired stock concentration<span class="hint">Example: 100 µM = 100 pmol/µL</span></label><input id="stockTarget" type="number" placeholder="e.g. 100"></div><div><label>Unit</label><select id="stockTargetUnit"><option selected>µM</option><option>pmol/µL</option></select></div></div>
 <div class="actions"><button id="resuspendBtn" class="primary">Calculate</button><button id="resuspendReset">Reset</button></div>
 <div id="resuspendAnswer" class="answer"><h3>RESULT</h3><div class="placeholder">Enter primer amount and desired stock concentration.</div></div>
 </div>
 <div id="workingPanel" class="subpanel">
-<div class="row"><div><label>Stock primer concentration (C₁)</label><input id="pC1" type="number" placeholder="e.g. 100"></div><div><label>Unit</label><select id="pU1"><option selected>µM</option><option>nM</option></select></div></div>
-<div class="row"><div><label>Desired working concentration (C₂)</label><input id="pC2" type="number" placeholder="e.g. 10"></div><div><label>Unit</label><select id="pU2"><option selected>µM</option><option>nM</option></select></div></div>
+<div class="row"><div><label>Stock primer concentration (C₁)</label><input id="pC1" type="number" placeholder="e.g. 100"></div><div><label>Unit</label><select id="pU1"><option selected>µM</option><option>nM</option><option>pmol/µL</option></select></div></div>
+<div class="row"><div><label>Desired working concentration (C₂)</label><input id="pC2" type="number" placeholder="e.g. 10"></div><div><label>Unit</label><select id="pU2"><option selected>µM</option><option>nM</option><option>pmol/µL</option></select></div></div>
 <div class="row"><div><label>Final working volume (V₂)</label><input id="pV2" type="number" placeholder="e.g. 100"></div><div><label>Unit</label><select id="pVU"><option selected>µL</option><option>mL</option></select></div></div>
 <div class="actions"><button id="workingBtn" class="primary">Calculate</button><button id="workingReset">Reset</button></div>
 <div id="workingAnswer" class="answer"><h3>RESULT</h3><div class="placeholder">Enter stock concentration, desired concentration, and final volume.</div></div>
 </div>
-<div class="note">Dry-primer calculation assumes the amount supplied is in nmol. Verify the supplier datasheet and your laboratory protocol before use.</div>
+<div class="note">Primer amount may be entered as nmol or pmol. For concentration, 1 µM = 1 pmol/µL. Verify the supplier datasheet and your laboratory protocol before use.</div>
 </div></section>
 
 <section id="rcf" class="view"><button class="back" data-route="home">← Back to Home</button><div class="panel">
@@ -102,12 +102,12 @@ const $=id=>document.getElementById(id);
 function setRoute(route){const valid=["home","dilution","primer","rcf","serial"];if(!valid.includes(route))route="home";document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));document.querySelectorAll("[data-route]").forEach(b=>b.classList.remove("active"));$(route).classList.add("active");document.querySelectorAll('[data-route="'+route+'"]').forEach(b=>b.classList.add("active"));if(location.hash!=="#"+route)history.replaceState(null,"","#"+route);window.scrollTo({top:0,behavior:"smooth"})}
 document.querySelectorAll("[data-route]").forEach(el=>el.addEventListener("click",()=>setRoute(el.dataset.route)));setRoute((location.hash||"#home").slice(1));window.addEventListener("hashchange",()=>setRoute((location.hash||"#home").slice(1)));
 document.querySelectorAll("[data-panel]").forEach(btn=>btn.addEventListener("click",()=>{const parent=btn.closest(".panel");parent.querySelectorAll("[data-panel]").forEach(x=>x.classList.remove("active"));parent.querySelectorAll(".subpanel").forEach(x=>x.classList.remove("active"));btn.classList.add("active");$(btn.dataset.panel).classList.add("active")}));
-const factor={"M":["mol",1],"mM":["mol",1e-3],"µM":["mol",1e-6],"nM":["mol",1e-9],"mg/mL":["mass",1],"mg/L":["mass",1e-3],"µg/mL":["mass",1e-3]},vf={"µL":1e-6,"mL":1e-3,"L":1},pf={"µM":1,"nM":.001},pvf={"µL":1,"mL":1000};
+const factor={"M":["mol",1],"mM":["mol",1e-3],"µM":["mol",1e-6],"nM":["mol",1e-9],"mg/mL":["mass",1],"mg/L":["mass",1e-3],"µg/mL":["mass",1e-3]},vf={"µL":1e-6,"mL":1e-3,"L":1},pf={"µM":1,"nM":.001,"pmol/µL":1},pvf={"µL":1,"mL":1000};
 function fmt(x){if(!isFinite(x))return"—";if(x===0)return"0";if(Math.abs(x)>=10000||Math.abs(x)<.001)return x.toExponential(4);return String(Number(x.toPrecision(7)))}
 function err(el,msg){el.className="answer error";el.innerHTML="<h3>CHECK INPUT</h3><div>"+msg+"</div>"}function reset(el,msg){el.className="answer";el.innerHTML='<h3>RESULT</h3><div class="placeholder">'+msg+'</div>'}
 $("calcBtn").onclick=()=>{const C1=+c1.value,C2=+c2.value,V2=+v2.value,a=factor[u1.value],b=factor[u2.value],unit=vu.value,out=answer;if(!(C1>0&&C2>0&&V2>0))return err(out,"Please enter positive values.");if(a[0]!==b[0])return err(out,"Choose compatible concentration units.");const x=C1*a[1],y=C2*b[1];if(y>x)return err(out,"Desired concentration is higher than stock.");const total=V2*vf[unit],stock=y*total/x,dil=total-stock;out.className="answer";out.innerHTML='<h3>RESULT</h3><div class="line">Use stock: <span class="big">'+fmt(stock/vf[unit])+' '+unit+'</span></div><div class="line">Add diluent: <span class="big">'+fmt(dil/vf[unit])+' '+unit+'</span></div>'};
 $("resetBtn").onclick=()=>{c1.value=c2.value=v2.value="";reset(answer,"Your answer will appear here after you tap Calculate.")};
-$("resuspendBtn").onclick=()=>{const n=+nmol.value,c=+stockTarget.value;if(!(n>0&&c>0))return err(resuspendAnswer,"Please enter positive values.");const v=1000*n/c;resuspendAnswer.className="answer";resuspendAnswer.innerHTML='<h3>RESULT</h3><div class="line">Add water/buffer: <span class="big">'+fmt(v)+' µL</span></div><div class="line">Stock concentration: <b>'+fmt(c)+' µM</b></div>'};
+$("resuspendBtn").onclick=()=>{const amount=+nmol.value,c=+stockTarget.value;if(!(amount>0&&c>0))return err(resuspendAnswer,"Please enter positive values.");const amountPmol=primerAmountUnit.value==="nmol"?amount*1000:amount;const concPmolPerUl=c;const v=amountPmol/concPmolPerUl;resuspendAnswer.className="answer";resuspendAnswer.innerHTML='<h3>RESULT</h3><div class="line">Add water/buffer: <span class="big">'+fmt(v)+' µL</span></div><div class="line">Stock concentration: <b>'+fmt(c)+' '+stockTargetUnit.value+'</b></div><div class="line">Equivalent concentration: <b>'+fmt(c)+' µM = '+fmt(c)+' pmol/µL</b></div>'};
 $("resuspendReset").onclick=()=>{nmol.value=stockTarget.value="";reset(resuspendAnswer,"Enter primer amount and desired stock concentration.")};
 $("workingBtn").onclick=()=>{const C1=+pC1.value,C2=+pC2.value,V2=+pV2.value;if(!(C1>0&&C2>0&&V2>0))return err(workingAnswer,"Please enter positive values.");const a=C1*pf[pU1.value],b=C2*pf[pU2.value];if(b>a)return err(workingAnswer,"Desired concentration is higher than stock.");const total=V2*pvf[pVU.value],stock=b*total/a,dil=total-stock,div=pvf[pVU.value];workingAnswer.className="answer";workingAnswer.innerHTML='<h3>RESULT</h3><div class="line">Use primer stock: <span class="big">'+fmt(stock/div)+' '+pVU.value+'</span></div><div class="line">Add water/buffer: <span class="big">'+fmt(dil/div)+' '+pVU.value+'</span></div>'};
 $("workingReset").onclick=()=>{pC1.value=pC2.value=pV2.value="";reset(workingAnswer,"Enter stock concentration, desired concentration, and final volume.")};
